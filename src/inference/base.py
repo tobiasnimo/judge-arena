@@ -61,7 +61,6 @@ class Judge:
                 model=self.model_id,
                 dtype="auto",
                 trust_remote_code=True,
-                disable_log_requests=True,
             )
         else:
             print(f"Loading {self.name} with transformers...")
