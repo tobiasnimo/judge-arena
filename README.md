@@ -54,18 +54,21 @@ python src/run_judge.py --judge qwen-9b --metric bestof
 python src/run_judge.py --judge qwen-4b --metric conversation --backend transformers
 ```
 
-Results are written to `leaderboard/` after each run.
+Results are written to `results/` after each run.
 
-## Leaderboard
+## Results & Leaderboard
 
-Each metric produces its own leaderboard file. An overall leaderboard is computed when all three metrics have been run for a model.
+Per-run judge responses (with reasoning) are saved alongside a single overall leaderboard.
 
 ```
-leaderboard/
-├── bestof.json       # sorted by accuracy (desc)
-├── conversation.json # sorted by MAE (asc)
-├── context.json      # sorted by MAE (asc)
-└── overall.json      # sorted by overall_score (desc)
+results/
+├── bestof/
+│   └── Qwen--Qwen3.5-2B.json   # per-item: question, reasoning, predicted/actual winner
+├── conversation/
+│   └── Qwen--Qwen3.5-2B.json   # per-item: question, reasoning, predicted/actual score, error
+├── context/
+│   └── Qwen--Qwen3.5-2B.json   # per-item: question, reasoning, predicted/actual score, error
+└── leaderboard.json             # overall leaderboard keyed by model_id
 ```
 
 Overall score formula:
@@ -79,7 +82,7 @@ overall_score = mean([bestof_accuracy, 1 - conversation_mae, 1 - context_mae])
 judge-arena/
 ├── datasets/          # Pre-loaded evaluation datasets (100 samples each)
 ├── loaders/           # Jupyter notebooks used to generate the datasets
-├── leaderboard/       # Auto-generated leaderboard JSONs (created on first run)
+├── results/           # Auto-generated on first run: per-item responses + leaderboard
 ├── src/
 │   ├── run_judge.py   # CLI entry point
 │   ├── leaderboard.py # Leaderboard update logic

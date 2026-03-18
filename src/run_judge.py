@@ -16,7 +16,6 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from inference import load_judge, list_judges
 from metrics import bestof, conversation, context
-from leaderboard import update_overall_leaderboard
 
 
 METRICS = {
@@ -63,21 +62,7 @@ def main():
         all_results[name] = result
         print(f"Result: {json.dumps(result, indent=2)}")
 
-    # When all three metrics are run together, refresh the overall leaderboard entry
-    # (each metric already upserts its own column; this ensures overall_score is current)
-    if args.metric == "all":
-        update_overall_leaderboard(
-            model_id=judge.model_id,
-            model_name=judge.name,
-            updates={
-                "bestof_accuracy": all_results["bestof"]["accuracy"],
-                "conversation_mae": all_results["conversation"]["mae"],
-                "context_mae": all_results["context"]["mae"],
-            },
-        )
-        print(f"\nOverall leaderboard updated.")
-
-    print(f"\nDone. Leaderboard files written to: leaderboard/")
+    print(f"\nDone. Results written to: results/")
 
 
 if __name__ == "__main__":

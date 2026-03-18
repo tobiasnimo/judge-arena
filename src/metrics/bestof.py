@@ -6,13 +6,12 @@ Score: Accuracy — fraction of times the judge picks the correct winner.
 
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from leaderboard import update_metric_leaderboard, update_overall_leaderboard
+from leaderboard import save_metric_results, update_leaderboard
 
 
 ROOT = Path(__file__).parent.parent.parent
@@ -35,7 +34,9 @@ Compare both responses based on accuracy, completeness, clarity, and helpfulness
 Choose the better response, or "tie" if they are equally good.
 
 Respond with JSON only, no explanation:
-{{"winner": "A"}} or {{"winner": "B"}} or {{"winner": "tie"}}\
+{{"reasoning": "<one sentence explaining your choice>", "winner": "A"}} \
+or {{"reasoning": "...", "winner": "B"}} \
+or {{"reasoning": "...", "winner": "tie"}}\
 """
 
 # Map dataset winner labels to the judge's expected output tokens
@@ -48,6 +49,7 @@ def run(judge) -> dict:
 
     correct = 0
     unparseable = 0
+    rows = []
 
     pbar = tqdm(dataset, desc=f"bestof [{judge.name}]")
     for item in pbar:
@@ -62,13 +64,30 @@ def run(judge) -> dict:
 
         if parsed is None or "winner" not in parsed:
             unparseable += 1
+            rows.append({
+                "question": item["question"],
+                "actual_winner": item["winner"],
+                "predicted_winner": None,
+                "reasoning": None,
+                "correct": False,
+                "parseable": False,
+            })
             continue
 
         predicted = parsed["winner"].strip().lower()
         actual = _WINNER_MAP.get(item["winner"].strip().lower(), item["winner"].strip().lower())
-
-        if predicted == actual:
+        is_correct = predicted == actual
+        if is_correct:
             correct += 1
+
+        rows.append({
+            "question": item["question"],
+            "actual_winner": actual,
+            "predicted_winner": predicted,
+            "reasoning": parsed.get("reasoning"),
+            "correct": is_correct,
+            "parseable": True,
+        })
 
     total = len(dataset)
     evaluated = total - unparseable
@@ -81,12 +100,9 @@ def run(judge) -> dict:
         "correct": correct,
         "total": total,
         "unparseable": unparseable,
-        "last_run": datetime.now(timezone.utc).isoformat(),
     }
 
-    update_metric_leaderboard("bestof", result, sort_key="accuracy", ascending=False)
-    update_overall_leaderboard(
-        judge.model_id, judge.name, {"bestof_accuracy": accuracy}
-    )
+    save_metric_results("bestof", judge.model_id, rows)
+    update_leaderboard(judge.model_id, {"bestof_accuracy": accuracy})
 
     return result

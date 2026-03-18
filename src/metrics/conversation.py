@@ -7,13 +7,12 @@ Score: MAE — mean absolute error between judge scores and dataset scores.
 
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from leaderboard import update_metric_leaderboard, update_overall_leaderboard
+from leaderboard import save_metric_results, update_leaderboard
 
 
 ROOT = Path(__file__).parent.parent.parent
@@ -40,7 +39,7 @@ Score the generated answer from 0.0 to 1.0 based on how closely it matches the g
 - 0.0: Completely wrong, irrelevant, or contradicts the ground truth
 
 Respond with JSON only, no explanation:
-{{"score": <float between 0.0 and 1.0>}}\
+{{"reasoning": "<one sentence explaining your score>", "score": <float between 0.0 and 1.0>}}\
 """
 
 
@@ -50,6 +49,7 @@ def run(judge) -> dict:
 
     errors = []
     unparseable = 0
+    rows = []
 
     pbar = tqdm(dataset, desc=f"conversation [{judge.name}]")
     for item in pbar:
@@ -64,17 +64,43 @@ def run(judge) -> dict:
 
         if parsed is None or "score" not in parsed:
             unparseable += 1
+            rows.append({
+                "question": item["question"],
+                "actual_score": item["score"],
+                "predicted_score": None,
+                "reasoning": None,
+                "error": None,
+                "parseable": False,
+            })
             continue
 
         try:
             predicted = float(parsed["score"])
-            predicted = max(0.0, min(1.0, predicted))  # clamp to [0, 1]
+            predicted = max(0.0, min(1.0, predicted))
         except (ValueError, TypeError):
             unparseable += 1
+            rows.append({
+                "question": item["question"],
+                "actual_score": item["score"],
+                "predicted_score": None,
+                "reasoning": None,
+                "error": None,
+                "parseable": False,
+            })
             continue
 
         actual = float(item["score"])
-        errors.append(abs(predicted - actual))
+        error = abs(predicted - actual)
+        errors.append(error)
+
+        rows.append({
+            "question": item["question"],
+            "actual_score": actual,
+            "predicted_score": predicted,
+            "reasoning": parsed.get("reasoning"),
+            "error": round(error, 4),
+            "parseable": True,
+        })
 
     total = len(dataset)
     mae = round(sum(errors) / len(errors), 4) if errors else None
@@ -85,12 +111,9 @@ def run(judge) -> dict:
         "mae": mae,
         "total": total,
         "unparseable": unparseable,
-        "last_run": datetime.now(timezone.utc).isoformat(),
     }
 
-    update_metric_leaderboard("conversation", result, sort_key="mae", ascending=True)
-    update_overall_leaderboard(
-        judge.model_id, judge.name, {"conversation_mae": mae}
-    )
+    save_metric_results("conversation", judge.model_id, rows)
+    update_leaderboard(judge.model_id, {"conversation_mae": mae})
 
     return result
