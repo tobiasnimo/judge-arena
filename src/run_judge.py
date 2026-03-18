@@ -63,9 +63,10 @@ def main():
         print(f"[INFO] Running metric: {name}")
         result = module.run(judge, debug=args.debug)
         all_results[name] = result
-        print(f"Result: {json.dumps(result, indent=2)}")
+        print(f"[Output]\n{json.dumps(result, indent=2)}")
+        print("\n---")
 
-    print(f"\nDone. Results written to: results/")
+    print(f"\n\n[INFO] Results written to: results/")
 
 
 if __name__ == "__main__":
