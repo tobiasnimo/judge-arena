@@ -125,7 +125,7 @@ class Judge:
 
         if self._llm is not None:
             params = self._make_sampling_params(schema)
-            outputs = self._llm.generate([formatted], params)
+            outputs = self._llm.generate([formatted], params, use_tqdm=False)
             return outputs[0].outputs[0].text
 
         if self._model is not None:
