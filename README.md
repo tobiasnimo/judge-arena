@@ -31,6 +31,14 @@ Pre-loaded 100-sample datasets in `datasets/`. Loaders (Jupyter notebooks) are i
 | `qwen-2b` | [Qwen/Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B) | ~5 GB |
 | `qwen-4b` | [Qwen/Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) | ~9 GB |
 | `qwen-9b` | [Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) | ~19 GB |
+| `nemotron-4b` | [nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16](https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-4B-BF16) | ~9 GB |
+| `gemma-3-4b` | [google/gemma-3-4b-it](https://huggingface.co/google/gemma-3-4b-it) | ~9 GB |
+| `phi-4-mini` | [microsoft/Phi-4-mini-instruct](https://huggingface.co/microsoft/Phi-4-mini-instruct) | ~8 GB |
+| `phi-4-mini-flash` ⚙️ | [microsoft/Phi-4-mini-flash-reasoning](https://huggingface.co/microsoft/Phi-4-mini-flash-reasoning) | ~8 GB |
+| `lfm2.5-1.2b` | [LiquidAI/LFM2.5-1.2B-Instruct](https://huggingface.co/LiquidAI/LFM2.5-1.2B-Instruct) | ~3 GB |
+| `lfm2.5-1.2b-think` ⚙️ | [LiquidAI/LFM2.5-1.2B-Thinking](https://huggingface.co/LiquidAI/LFM2.5-1.2B-Thinking) | ~3 GB |
+
+> **⚙️ Reasoning models** emit chain-of-thought tokens before their JSON answer. The parser strips known thinking-block formats and falls back to extracting the first `{...}` object, but unparseable rates may be higher than with standard instruct models. Use `--debug` to inspect raw output if needed.
 
 Adding a new model only requires adding one entry to `src/inference/registry.py`.
 
