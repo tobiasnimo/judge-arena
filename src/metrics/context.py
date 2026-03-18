@@ -12,6 +12,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from inference.base import ScoreOutput
 from leaderboard import save_metric_results, update_leaderboard
 
 
@@ -54,7 +55,7 @@ def run(judge) -> dict:
             question=item["question"],
             context=item["context"],
         )
-        output = judge.generate(prompt)
+        output = judge.generate(prompt, schema=ScoreOutput)
         parsed = judge.parse_json(output)
 
         if parsed is None or "score" not in parsed:

@@ -1,7 +1,9 @@
 import json
 import random
 import re
-from typing import Optional
+from typing import Literal, Optional, Type
+
+from pydantic import BaseModel
 
 
 try:
@@ -9,6 +11,17 @@ try:
     VLLM_AVAILABLE = True
 except ImportError:
     VLLM_AVAILABLE = False
+
+
+# Output schemas — passed to generate() so vLLM can constrain token sampling.
+class WinnerOutput(BaseModel):
+    reasoning: str
+    winner: Literal["A", "B", "tie"]
+
+
+class ScoreOutput(BaseModel):
+    reasoning: str
+    score: float
 
 
 class Judge:
@@ -76,6 +89,17 @@ class Judge:
             # tokenizer doesn't support enable_thinking (non-Qwen3 model)
             return self._tokenizer.apply_chat_template(messages, **kwargs)
 
+    def _make_sampling_params(self, schema: Optional[Type[BaseModel]]):
+        base = dict(temperature=0.0, max_tokens=256)
+        if schema is None:
+            return SamplingParams(**base)
+        try:
+            from vllm.sampling_params import GuidedDecodingParams
+            guided = GuidedDecodingParams(json=schema.model_json_schema())
+            return SamplingParams(**base, guided_decoding=guided)
+        except Exception:
+            return SamplingParams(**base)
+
     def _generate_fake(self, prompt: str) -> str:
         """Return a plausible random JSON response without loading any model."""
         rng = random.Random(prompt)  # deterministic per prompt
@@ -86,14 +110,14 @@ class Judge:
             score = round(rng.choice([0.0, 0.25, 0.5, 0.75, 1.0]), 2)
             return json.dumps({"reasoning": "Fake reasoning.", "score": score})
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, schema: Optional[Type[BaseModel]] = None) -> str:
         if self.backend == "fake":
             return self._generate_fake(prompt)
 
         formatted = self._apply_chat_template(prompt)
 
         if self._llm is not None:
-            params = SamplingParams(temperature=0.0, max_tokens=256)
+            params = self._make_sampling_params(schema)
             outputs = self._llm.generate([formatted], params)
             return outputs[0].outputs[0].text
 
@@ -115,7 +139,6 @@ class Judge:
 
     def parse_json(self, text: str) -> Optional[dict]:
         """Parse JSON from model output, stripping Qwen3 <think> blocks if present."""
-        # Strip Qwen3 thinking tokens before parsing
         text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
 
         try:
