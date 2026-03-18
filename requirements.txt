@@ -1,0 +1,9 @@
+huggingface_hub
+pandas
+datasets
+fastparquet
+ipykernel
+vllm
+transformers
+torch
+tqdm
