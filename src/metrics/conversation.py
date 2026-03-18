@@ -9,8 +9,6 @@ import json
 import sys
 from pathlib import Path
 
-from tqdm import tqdm
-
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from inference.base import ScoreOutput
 from leaderboard import save_metric_results, update_leaderboard
@@ -51,10 +49,10 @@ def run(judge, debug: bool = False) -> dict:
     errors = []
     unparseable = 0
     rows = []
+    total = len(dataset)
 
-    pbar = tqdm(dataset, desc=f"conversation [{judge.name}]")
-    for item in pbar:
-        pbar.set_postfix(q=item["question"][:60])
+    for i, item in enumerate(dataset):
+        print(f"\r[INFO] conversation ({i + 1}/{total})", end="", flush=True)
         prompt = PROMPT_TEMPLATE.format(
             question=item["question"],
             gen_answer=item["gen_answer"],
@@ -112,7 +110,7 @@ def run(judge, debug: bool = False) -> dict:
             row["raw"] = output
         rows.append(row)
 
-    total = len(dataset)
+    print()  # newline after progress
     mae = round(sum(errors) / len(errors), 4) if errors else None
 
     result = {

@@ -1,4 +1,5 @@
 import json
+import logging
 import random
 import re
 from typing import Literal, Optional, Type
@@ -11,6 +12,12 @@ try:
     VLLM_AVAILABLE = True
 except ImportError:
     VLLM_AVAILABLE = False
+
+# Suppress vLLM's per-request noise ("Rendering prompt", "Processed prompt", etc.)
+for _logger_name in ("vllm.engine.llm_engine", "vllm.core.scheduler",
+                      "vllm.engine.output_processor.single_step",
+                      "vllm.worker.model_runner"):
+    logging.getLogger(_logger_name).setLevel(logging.WARNING)
 
 
 # Output schemas — passed to generate() so vLLM can constrain token sampling.
@@ -54,6 +61,7 @@ class Judge:
                 model=self.model_id,
                 dtype="auto",
                 trust_remote_code=True,
+                disable_log_requests=True,
             )
         else:
             print(f"Loading {self.name} with transformers...")
