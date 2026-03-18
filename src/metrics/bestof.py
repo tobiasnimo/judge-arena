@@ -49,7 +49,9 @@ def run(judge) -> dict:
     correct = 0
     unparseable = 0
 
-    for item in tqdm(dataset, desc=f"bestof [{judge.name}]"):
+    pbar = tqdm(dataset, desc=f"bestof [{judge.name}]")
+    for item in pbar:
+        pbar.set_postfix(q=item["question"][:60])
         prompt = PROMPT_TEMPLATE.format(
             question=item["question"],
             response_a=item["model_a"],

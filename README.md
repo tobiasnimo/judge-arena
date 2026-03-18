@@ -24,12 +24,12 @@ Pre-loaded 100-sample datasets in `datasets/`. Loaders (Jupyter notebooks) are i
 
 ## Supported Models
 
-| CLI ID | Model |
-|---|---|
-| `qwen-0.8b` | [Qwen/Qwen3.5-0.8B](https://huggingface.co/Qwen/Qwen3.5-0.8B) |
-| `qwen-2b` | [Qwen/Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B) |
-| `qwen-4b` | [Qwen/Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) |
-| `qwen-9b` | [Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) |
+| CLI ID | Model | VRAM (bf16) |
+|---|---|---|
+| `qwen-0.8b` | [Qwen/Qwen3.5-0.8B](https://huggingface.co/Qwen/Qwen3.5-0.8B) | ~2 GB |
+| `qwen-2b` | [Qwen/Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B) | ~5 GB |
+| `qwen-4b` | [Qwen/Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) | ~9 GB |
+| `qwen-9b` | [Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B) | ~19 GB |
 
 Adding a new model only requires adding one entry to `src/inference/registry.py`.
 

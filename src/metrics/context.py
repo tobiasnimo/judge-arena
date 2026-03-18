@@ -47,7 +47,9 @@ def run(judge) -> dict:
     errors = []
     unparseable = 0
 
-    for item in tqdm(dataset, desc=f"context [{judge.name}]"):
+    pbar = tqdm(dataset, desc=f"context [{judge.name}]")
+    for item in pbar:
+        pbar.set_postfix(q=item["question"][:60])
         prompt = PROMPT_TEMPLATE.format(
             question=item["question"],
             context=item["context"],

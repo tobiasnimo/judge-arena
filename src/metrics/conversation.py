@@ -51,7 +51,9 @@ def run(judge) -> dict:
     errors = []
     unparseable = 0
 
-    for item in tqdm(dataset, desc=f"conversation [{judge.name}]"):
+    pbar = tqdm(dataset, desc=f"conversation [{judge.name}]")
+    for item in pbar:
+        pbar.set_postfix(q=item["question"][:60])
         prompt = PROMPT_TEMPLATE.format(
             question=item["question"],
             gen_answer=item["gen_answer"],
