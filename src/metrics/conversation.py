@@ -37,7 +37,7 @@ Score the generated answer from 0.0 to 1.0 based on how closely it matches the g
 Respond with JSON only,:
 ```json
 {{
-"reasoning": "<one sentence explaining your score>",
+"reasoning": "<one short sentence explaining your score>",
 "score": <float between 0.0 and 1.0>
 }}
 ```"""

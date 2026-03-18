@@ -34,7 +34,7 @@ Score the helpfulness of the context from 0.0 to 1.0:
 Respond with JSON only:
 ```json
 {{
-"reasoning": "<one sentence explaining your score>",
+"reasoning": "<one short sentence explaining your score>",
 "score": <float between 0.0 and 1.0>
 }}
 ```"""

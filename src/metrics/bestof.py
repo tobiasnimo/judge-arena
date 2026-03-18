@@ -29,13 +29,13 @@ PROMPT_TEMPLATE = """You are an impartial AI judge. Your task is to evaluate two
 **Response B:**
 {response_b}
 
-Compare both responses based on accuracy, completeness, clarity, and helpfulness. \
+Compare both responses based on accuracy, completeness, clarity, and helpfulness.
 Choose the better response, or "tie" if they are equally good.
 
 Respond with JSON only:
 ```json
 {{
-"reasoning": "<one sentence explaining your choice>",
+"reasoning": "<one short sentence explaining your choice>",
 "winner": "<A, B or tie>"
 }}
 ```"""
