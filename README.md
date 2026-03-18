@@ -26,6 +26,7 @@ Pre-loaded 100-sample datasets in `datasets/`. Loaders (Jupyter notebooks) are i
 
 | CLI ID | Model | VRAM (bf16) |
 |---|---|---|
+| `fake` | Built-in fake judge (no model download, for local testing) | — |
 | `qwen-0.8b` | [Qwen/Qwen3.5-0.8B](https://huggingface.co/Qwen/Qwen3.5-0.8B) | ~2 GB |
 | `qwen-2b` | [Qwen/Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B) | ~5 GB |
 | `qwen-4b` | [Qwen/Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) | ~9 GB |
@@ -36,6 +37,8 @@ Adding a new model only requires adding one entry to `src/inference/registry.py`
 ## Setup
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -52,6 +55,12 @@ python src/run_judge.py --judge qwen-9b --metric bestof
 
 # Use transformers backend instead of vLLM
 python src/run_judge.py --judge qwen-4b --metric conversation --backend transformers
+
+# Test locally without downloading any model
+python src/run_judge.py --judge fake --metric all
+
+# Debug mode: include raw LLM output in results JSON
+python src/run_judge.py --judge qwen-2b --metric bestof --debug
 ```
 
 Results are written to `results/` after each run.
@@ -63,12 +72,26 @@ Per-run judge responses (with reasoning) are saved alongside a single overall le
 ```
 results/
 ├── bestof/
-│   └── Qwen--Qwen3.5-2B.json   # per-item: question, reasoning, predicted/actual winner
+│   └── Qwen--Qwen3.5-2B.json   # per-item: question, reasoning, predicted/actual winner, correct, parseable
 ├── conversation/
-│   └── Qwen--Qwen3.5-2B.json   # per-item: question, reasoning, predicted/actual score, error
+│   └── Qwen--Qwen3.5-2B.json   # per-item: question, reasoning, predicted/actual score, error, parseable
 ├── context/
-│   └── Qwen--Qwen3.5-2B.json   # per-item: question, reasoning, predicted/actual score, error
-└── leaderboard.json             # overall leaderboard keyed by model_id
+│   └── Qwen--Qwen3.5-2B.json   # per-item: question, reasoning, predicted/actual score, error, parseable
+└── leaderboard.json             # overall leaderboard keyed by model_id, sorted by overall score
+```
+
+With `--debug`, each item also includes a `raw` field with the unprocessed model output.
+
+Leaderboard structure:
+```json
+{
+  "Qwen/Qwen3.5-2B": {
+    "bestof":       { "accuracy": 0.61, "total": 100, "failed": 2 },
+    "conversation": { "mae": 0.18,      "total": 100, "failed": 1 },
+    "context":      { "mae": 0.21,      "total": 100, "failed": 0 },
+    "overall":      { "score": 0.71 }
+  }
+}
 ```
 
 Overall score formula:
