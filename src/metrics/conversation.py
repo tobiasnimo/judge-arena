@@ -114,6 +114,6 @@ def run(judge) -> dict:
     }
 
     save_metric_results("conversation", judge.model_id, rows)
-    update_leaderboard(judge.model_id, {"conversation_mae": mae})
+    update_leaderboard(judge.model_id, "conversation", mae, total, unparseable)
 
     return result

@@ -103,6 +103,6 @@ def run(judge) -> dict:
     }
 
     save_metric_results("bestof", judge.model_id, rows)
-    update_leaderboard(judge.model_id, {"bestof_accuracy": accuracy})
+    update_leaderboard(judge.model_id, "bestof", accuracy, total, unparseable)
 
     return result

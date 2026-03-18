@@ -109,6 +109,6 @@ def run(judge) -> dict:
     }
 
     save_metric_results("context", judge.model_id, rows)
-    update_leaderboard(judge.model_id, {"context_mae": mae})
+    update_leaderboard(judge.model_id, "context", mae, total, unparseable)
 
     return result
