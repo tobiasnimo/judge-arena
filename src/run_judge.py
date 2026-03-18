@@ -60,9 +60,7 @@ def main():
 
     all_results = {}
     for name, module in metrics_to_run.items():
-        print(f"\n{'='*50}")
-        print(f"Running metric: {name}")
-        print(f"{'='*50}")
+        print(f"[INFO] Running metric: {name}")
         result = module.run(judge, debug=args.debug)
         all_results[name] = result
         print(f"Result: {json.dumps(result, indent=2)}")
