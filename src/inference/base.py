@@ -90,13 +90,13 @@ class Judge:
             return self._tokenizer.apply_chat_template(messages, **kwargs)
 
     def _make_sampling_params(self, schema: Optional[Type[BaseModel]]):
-        base = dict(temperature=0.0, max_tokens=256)
+        base = dict(temperature=0.0, max_tokens=5000)
         if schema is None:
             return SamplingParams(**base)
         try:
-            from vllm.sampling_params import GuidedDecodingParams
-            guided = GuidedDecodingParams(json=schema.model_json_schema())
-            return SamplingParams(**base, guided_decoding=guided)
+            from vllm.sampling_params import StructuredOutputsParams
+            structured = StructuredOutputsParams(json=schema.model_json_schema())
+            return SamplingParams(**base, structured_outputs=structured)
         except Exception:
             return SamplingParams(**base)
 
@@ -127,7 +127,7 @@ class Judge:
             with torch.no_grad():
                 output_ids = self._model.generate(
                     **inputs,
-                    max_new_tokens=256,
+                    max_new_tokens=5000,
                     do_sample=False,
                 )
             return self._tokenizer.decode(
