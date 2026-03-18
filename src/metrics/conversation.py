@@ -19,9 +19,7 @@ from leaderboard import save_metric_results, update_leaderboard
 ROOT = Path(__file__).parent.parent.parent
 DATASET_PATH = ROOT / "datasets" / "conversational.json"
 
-PROMPT_TEMPLATE = """\
-You are an impartial AI judge. Your task is to evaluate how accurately a generated \
-answer matches a ground truth answer.
+PROMPT_TEMPLATE = """You are an impartial AI judge. Your task is to evaluate how accurately a generated answer matches a ground truth answer.
 
 **Question:**
 {question}
@@ -34,14 +32,16 @@ answer matches a ground truth answer.
 
 Score the generated answer from 0.0 to 1.0 based on how closely it matches the ground truth:
 - 1.0: Perfect match or semantically equivalent
-- 0.75: Mostly correct with minor omissions or inaccuracies
-- 0.5: Partially correct, captures the main idea but misses key details
-- 0.25: Mostly incorrect with limited relevant content
 - 0.0: Completely wrong, irrelevant, or contradicts the ground truth
 
-Respond with JSON only, no explanation:
-{{"reasoning": "<one sentence explaining your score>", "score": <float between 0.0 and 1.0>}}\
-"""
+Respond with JSON only,:
+```json
+{{
+"reasoning": "<one sentence explaining your score>",
+"score": <float between 0.0 and 1.0>
+}}
+```"""
+
 
 
 def run(judge, debug: bool = False) -> dict:

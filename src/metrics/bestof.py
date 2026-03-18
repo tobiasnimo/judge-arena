@@ -18,9 +18,7 @@ from leaderboard import save_metric_results, update_leaderboard
 ROOT = Path(__file__).parent.parent.parent
 DATASET_PATH = ROOT / "datasets" / "bestof.json"
 
-PROMPT_TEMPLATE = """\
-You are an impartial AI judge. Your task is to evaluate two responses to a question \
-and determine which one is better.
+PROMPT_TEMPLATE = """You are an impartial AI judge. Your task is to evaluate two responses to a question and determine which one is better.
 
 **Question:**
 {question}
@@ -34,11 +32,13 @@ and determine which one is better.
 Compare both responses based on accuracy, completeness, clarity, and helpfulness. \
 Choose the better response, or "tie" if they are equally good.
 
-Respond with JSON only, no explanation:
-{{"reasoning": "<one sentence explaining your choice>", "winner": "A"}} \
-or {{"reasoning": "...", "winner": "B"}} \
-or {{"reasoning": "...", "winner": "tie"}}\
-"""
+Respond with JSON only:
+```json
+{{
+"reasoning": "<one sentence explaining your choice>",
+"winner": "<A, B or tie>"
+}}
+```"""
 
 # Map dataset winner labels to the judge's expected output tokens
 _WINNER_MAP = {"model_a": "a", "model_b": "b", "tie": "tie"}

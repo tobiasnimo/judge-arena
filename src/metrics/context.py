@@ -19,9 +19,7 @@ from leaderboard import save_metric_results, update_leaderboard
 ROOT = Path(__file__).parent.parent.parent
 DATASET_PATH = ROOT / "datasets" / "context.json"
 
-PROMPT_TEMPLATE = """\
-You are an impartial AI judge. Your task is to evaluate how helpful a context passage \
-is for answering a given question.
+PROMPT_TEMPLATE = """You are an impartial AI judge. Your task is to evaluate how helpful a context passage is for answering a given question.
 
 **Question:**
 {question}
@@ -31,14 +29,15 @@ is for answering a given question.
 
 Score the helpfulness of the context from 0.0 to 1.0:
 - 1.0: Context directly and fully answers the question (Excellent)
-- 0.6: Context is helpful and relevant but incomplete (Acceptable)
-- 0.3: Context is marginally relevant, provides limited help (Could be Improved)
 - 0.0: Context is not helpful, irrelevant, or misleading (Bad)
 
-Respond with JSON only, no explanation:
-{{"reasoning": "<one sentence explaining your score>", "score": <float between 0.0 and 1.0>}}\
-"""
-
+Respond with JSON only:
+```json
+{{
+"reasoning": "<one sentence explaining your score>",
+"score": <float between 0.0 and 1.0>
+}}
+```"""
 
 def run(judge, debug: bool = False) -> dict:
     with open(DATASET_PATH) as f:
