@@ -20,7 +20,7 @@ Pre-loaded 100-sample datasets in `datasets/`. Loaders (Jupyter notebooks) are i
 |---|---|
 | `datasets/bestof.json` | [LMSYS MT-Bench Human Judgments](https://huggingface.co/datasets/lmsys/mt_bench_human_judgments) |
 | `datasets/conversational.json` | [NVIDIA Judges Verdict](https://huggingface.co/datasets/nvidia/judges-verdict) |
-| `datasets/context.json` | [FeedbackQA](https://github.com/McGill-NLP/feedbackqa) |
+| `datasets/context.json` | [FeedbackQA](https://huggingface.co/datasets/McGill-NLP/feedbackQA) |
 
 ## Supported Models
 
