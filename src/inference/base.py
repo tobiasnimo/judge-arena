@@ -1,4 +1,5 @@
 import json
+import random
 import re
 from typing import Optional
 
@@ -22,6 +23,10 @@ class Judge:
         self._tokenizer = None  # transformers tokenizer
 
     def load(self):
+        if self.backend == "fake":
+            print(f"Loading {self.name} (fake backend — no model downloaded).")
+            return
+
         if self.backend == "vllm":
             if not VLLM_AVAILABLE:
                 raise ImportError(
@@ -71,7 +76,20 @@ class Judge:
             # tokenizer doesn't support enable_thinking (non-Qwen3 model)
             return self._tokenizer.apply_chat_template(messages, **kwargs)
 
+    def _generate_fake(self, prompt: str) -> str:
+        """Return a plausible random JSON response without loading any model."""
+        rng = random.Random(prompt)  # deterministic per prompt
+        if '"winner"' in prompt:
+            winner = rng.choice(["A", "B", "tie"])
+            return json.dumps({"reasoning": "Fake reasoning.", "winner": winner})
+        else:
+            score = round(rng.choice([0.0, 0.25, 0.5, 0.75, 1.0]), 2)
+            return json.dumps({"reasoning": "Fake reasoning.", "score": score})
+
     def generate(self, prompt: str) -> str:
+        if self.backend == "fake":
+            return self._generate_fake(prompt)
+
         formatted = self._apply_chat_template(prompt)
 
         if self._llm is not None:
