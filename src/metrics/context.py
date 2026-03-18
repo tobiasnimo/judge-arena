@@ -40,7 +40,7 @@ Respond with JSON only, no explanation:
 """
 
 
-def run(judge) -> dict:
+def run(judge, debug: bool = False) -> dict:
     with open(DATASET_PATH) as f:
         dataset = json.load(f)
 
@@ -60,14 +60,17 @@ def run(judge) -> dict:
 
         if parsed is None or "score" not in parsed:
             unparseable += 1
-            rows.append({
+            row = {
                 "question": item["question"],
                 "actual_score": item["score"],
                 "predicted_score": None,
                 "reasoning": None,
                 "error": None,
                 "parseable": False,
-            })
+            }
+            if debug:
+                row["raw"] = output
+            rows.append(row)
             continue
 
         try:
@@ -75,28 +78,34 @@ def run(judge) -> dict:
             predicted = max(0.0, min(1.0, predicted))
         except (ValueError, TypeError):
             unparseable += 1
-            rows.append({
+            row = {
                 "question": item["question"],
                 "actual_score": item["score"],
                 "predicted_score": None,
                 "reasoning": None,
                 "error": None,
                 "parseable": False,
-            })
+            }
+            if debug:
+                row["raw"] = output
+            rows.append(row)
             continue
 
         actual = float(item["score"])
         error = abs(predicted - actual)
         errors.append(error)
 
-        rows.append({
+        row = {
             "question": item["question"],
             "actual_score": actual,
             "predicted_score": predicted,
             "reasoning": parsed.get("reasoning"),
             "error": round(error, 4),
             "parseable": True,
-        })
+        }
+        if debug:
+            row["raw"] = output
+        rows.append(row)
 
     total = len(dataset)
     mae = round(sum(errors) / len(errors), 4) if errors else None

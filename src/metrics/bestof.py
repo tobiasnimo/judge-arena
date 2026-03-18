@@ -44,7 +44,7 @@ or {{"reasoning": "...", "winner": "tie"}}\
 _WINNER_MAP = {"model_a": "a", "model_b": "b", "tie": "tie"}
 
 
-def run(judge) -> dict:
+def run(judge, debug: bool = False) -> dict:
     with open(DATASET_PATH) as f:
         dataset = json.load(f)
 
@@ -65,14 +65,17 @@ def run(judge) -> dict:
 
         if parsed is None or "winner" not in parsed:
             unparseable += 1
-            rows.append({
+            row = {
                 "question": item["question"],
                 "actual_winner": item["winner"],
                 "predicted_winner": None,
                 "reasoning": None,
                 "correct": False,
                 "parseable": False,
-            })
+            }
+            if debug:
+                row["raw"] = output
+            rows.append(row)
             continue
 
         predicted = parsed["winner"].strip().lower()
@@ -81,14 +84,17 @@ def run(judge) -> dict:
         if is_correct:
             correct += 1
 
-        rows.append({
+        row = {
             "question": item["question"],
             "actual_winner": actual,
             "predicted_winner": predicted,
             "reasoning": parsed.get("reasoning"),
             "correct": is_correct,
             "parseable": True,
-        })
+        }
+        if debug:
+            row["raw"] = output
+        rows.append(row)
 
     total = len(dataset)
     evaluated = total - unparseable

@@ -47,6 +47,11 @@ def main():
         choices=["vllm", "transformers"],
         help="Inference backend (default: vllm).",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Store raw LLM output in results JSON for debugging.",
+    )
     args = parser.parse_args()
 
     judge = load_judge(args.judge, backend=args.backend)
@@ -58,7 +63,7 @@ def main():
         print(f"\n{'='*50}")
         print(f"Running metric: {name}")
         print(f"{'='*50}")
-        result = module.run(judge)
+        result = module.run(judge, debug=args.debug)
         all_results[name] = result
         print(f"Result: {json.dumps(result, indent=2)}")
 
