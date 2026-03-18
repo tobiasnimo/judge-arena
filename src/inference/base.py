@@ -27,7 +27,11 @@ class Judge:
                 raise ImportError(
                     "vLLM is not installed. Install it or use --backend transformers."
                 )
+            from transformers import AutoTokenizer
             print(f"Loading {self.name} with vLLM...")
+            self._tokenizer = AutoTokenizer.from_pretrained(
+                self.model_id, trust_remote_code=True
+            )
             self._llm = LLM(
                 model=self.model_id,
                 dtype="auto",
@@ -53,19 +57,35 @@ class Judge:
         )
         self._model.eval()
 
+    def _apply_chat_template(self, prompt: str) -> str:
+        """Format prompt as a chat message using the model's template.
+
+        Passes enable_thinking=False for Qwen3 models to suppress <think> blocks
+        and keep output short and parseable.
+        """
+        messages = [{"role": "user", "content": prompt}]
+        kwargs = dict(tokenize=False, add_generation_prompt=True)
+        try:
+            return self._tokenizer.apply_chat_template(messages, enable_thinking=False, **kwargs)
+        except TypeError:
+            # tokenizer doesn't support enable_thinking (non-Qwen3 model)
+            return self._tokenizer.apply_chat_template(messages, **kwargs)
+
     def generate(self, prompt: str) -> str:
+        formatted = self._apply_chat_template(prompt)
+
         if self._llm is not None:
-            params = SamplingParams(temperature=0.0, max_tokens=512)
-            outputs = self._llm.generate([prompt], params)
+            params = SamplingParams(temperature=0.0, max_tokens=256)
+            outputs = self._llm.generate([formatted], params)
             return outputs[0].outputs[0].text
 
         if self._model is not None:
             import torch
-            inputs = self._tokenizer(prompt, return_tensors="pt").to(self._model.device)
+            inputs = self._tokenizer(formatted, return_tensors="pt").to(self._model.device)
             with torch.no_grad():
                 output_ids = self._model.generate(
                     **inputs,
-                    max_new_tokens=512,
+                    max_new_tokens=256,
                     do_sample=False,
                 )
             return self._tokenizer.decode(
