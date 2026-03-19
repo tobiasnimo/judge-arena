@@ -50,6 +50,13 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+**Gated models** (e.g. `gemma-3-4b`) require a HuggingFace token. Copy `.env.example` to `.env` and add your token:
+
+```bash
+cp env.example .env
+# then set HF_TOKEN=hf_... in .env
+```
+
 vLLM is the default inference backend. If vLLM is unavailable, fall back to `transformers` via `--backend transformers`.
 
 ## Usage
@@ -117,6 +124,7 @@ judge-arena/
 ├── src/
 │   ├── run_judge.py   # CLI entry point
 │   ├── leaderboard.py # Leaderboard update logic
+│   ├── config.py      # Settings (reads HF_TOKEN from .env)
 │   ├── inference/
 │   │   ├── base.py    # Judge class (vLLM + transformers backends)
 │   │   └── registry.py# Model registry and loader

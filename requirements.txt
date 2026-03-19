@@ -1,9 +1,19 @@
-huggingface_hub
-pandas
-datasets
-fastparquet
-ipykernel
+# Inference
 vllm
 transformers
 torch
+
+# HuggingFace
+huggingface_hub
+datasets
+
+# Config
+pydantic-settings
+
+# Data
+pandas
+fastparquet
+
+# Dev
+ipykernel
 tqdm

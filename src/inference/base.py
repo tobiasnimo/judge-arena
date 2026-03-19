@@ -6,6 +6,8 @@ from typing import Literal, Optional, Type
 
 from pydantic import BaseModel
 
+from config import settings
+
 
 try:
     from vllm import LLM, SamplingParams
@@ -54,13 +56,15 @@ class Judge:
                 )
             from transformers import AutoTokenizer
             print(f"Loading {self.name} with vLLM...")
+            hf_token = settings.HF_TOKEN or None
             self._tokenizer = AutoTokenizer.from_pretrained(
-                self.model_id, trust_remote_code=True
+                self.model_id, trust_remote_code=True, token=hf_token
             )
             self._llm = LLM(
                 model=self.model_id,
                 dtype="auto",
                 trust_remote_code=True,
+                **({"hf_overrides": {"token": hf_token}} if hf_token else {}),
             )
         else:
             print(f"Loading {self.name} with transformers...")
@@ -71,14 +75,16 @@ class Judge:
         import torch
         from transformers import AutoTokenizer, AutoModelForCausalLM
 
+        hf_token = settings.HF_TOKEN or None
         self._tokenizer = AutoTokenizer.from_pretrained(
-            self.model_id, trust_remote_code=True
+            self.model_id, trust_remote_code=True, token=hf_token
         )
         self._model = AutoModelForCausalLM.from_pretrained(
             self.model_id,
             torch_dtype=torch.float16,
             device_map="auto",
             trust_remote_code=True,
+            token=hf_token,
         )
         self._model.eval()
 
