@@ -49,6 +49,10 @@ class Judge:
             print(f"Loading {self.name} (fake backend — no model downloaded).")
             return
 
+        if settings.HF_TOKEN:
+            import huggingface_hub
+            huggingface_hub.login(token=settings.HF_TOKEN, add_to_git_credential=False)
+
         if self.backend == "vllm":
             if not VLLM_AVAILABLE:
                 raise ImportError(
@@ -64,7 +68,6 @@ class Judge:
                 model=self.model_id,
                 dtype="auto",
                 trust_remote_code=True,
-                **({"hf_overrides": {"token": hf_token}} if hf_token else {}),
             )
         else:
             print(f"Loading {self.name} with transformers...")
