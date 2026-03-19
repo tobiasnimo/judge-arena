@@ -63,8 +63,7 @@ def main():
         print(f"[INFO] Running metric: {name}")
         result = module.run(judge, debug=args.debug)
         all_results[name] = result
-        print(f"[Output]\n{json.dumps(result, indent=2)}")
-        print("\n---")
+        print(f"[OUT]\n{json.dumps(result, indent=2)}")
 
     print(f"\n\n[INFO] Results written to: results/")
 
